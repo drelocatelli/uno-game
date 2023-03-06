@@ -40,6 +40,8 @@ class Game {
     }
     this.section += 1;
     this.showHideCards();
+    const cardsQuantityEl = document.querySelector('cards-quantity');
+    cardsQuantityEl.innerText = `cartas geradas: ${this.inGameCards.length}`;
   }
 
   showHideCards() {
@@ -180,28 +182,4 @@ class Game {
 }
 
 const game = new Game();
-
-const form = document.querySelector("form");
-
-function preventSubmit(e) {
-  e.preventDefault();
-}
-
-form.onsubmit = function (e) {
-  e.preventDefault();
-  const formData = new FormData(this);
-  console.log(formData.get("cardsQuantity"));
-  const quantity = formData.get("cardsQuantity");
-  console.log(quantity)
-  if(quantity == '') {
-    game.generateCard(1);
-  } else {
-    game.generateCard(quantity);
-  }
-};
-
-const separatorBtn = document.querySelector('button[name="addSeparator"]');
-separatorBtn.onclick = function () {
-  app.appendChild(document.createElement("hr"));
-};
 

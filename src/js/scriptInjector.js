@@ -16,3 +16,4 @@ class ScriptInjector {
 }
 
 injectScript('game');
+injectScript('form');
