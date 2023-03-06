@@ -1,6 +1,7 @@
 const app = document.getElementById("app");
 
 class Game {
+  section = 0;
   colors = ["#ED1A22", "#FDDE03", "#06A553", "#0B93D3"];
   cards = [
     "0",
@@ -33,25 +34,65 @@ class Game {
         continue;
       } else {
         // create card object in DOM
-        this.addCardInDOM(cardSymbol);
+        const index = this.inGameCards.length;
+        this.addCardInDOM(cardSymbol, index);
       }
     }
+    this.section += 1;
+    this.showHideCards();
   }
 
-  addCardInDOM(symbol) {
+  showHideCards() {
+    const revealCards = document.querySelector('button[name="revealCards"]');
+    const hideCards = document.querySelector('button[name="hideCards"]');
+    if(game.inGameCards.length >= 1) {
+      revealCards.disabled = false;
+    } else {
+      revealCards.disabled = true;
+    }
+
+    revealCards.onclick = function() {
+      const allCards = document.querySelectorAll('.card');
+      for(let card of allCards) {
+        const hidden = card.querySelector('.hidden');
+        hidden.style.opacity = 0;
+      }
+      revealCards.disabled = true;
+      hideCards.disabled = false;
+
+    }
+
+    hideCards.onclick = function() {
+      const allCards = document.querySelectorAll('.card');
+      for(let card of allCards) {
+        const hidden = card.querySelector('.hidden');
+        hidden.style.opacity = 1;
+      }
+      hideCards.disabled = true;
+      revealCards.disabled = false;
+
+    }
+
+  }
+
+  addCardInDOM(symbol, index) {
     const randomNumber = Math.floor(
       Math.random() * (this.colors.length - 1 - 0 + 1) + 0
     );
-    const cardColor =
-      symbol == "❖" || symbol == "+4" ? "#000" : this.colors[randomNumber];
+    const cardColor = this.colors[randomNumber];
+      // symbol == "❖" || symbol == "+4" ? "#000" : this.colors[randomNumber];
 
     const card = document.createElement("div");
     card.classList.add("card");
     card.setAttribute("draggable", "true");
+    card.dataset.cardId = `${index}`;
 
     const content = document.createElement("div");
     content.classList.add("content");
     content.style.backgroundColor = cardColor;
+    if(symbol == "❖" || symbol == "+4" ) {
+      content.classList.add('colorfulBg');
+    }
     card.appendChild(content);
 
     const symbolDiv = document.createElement("div");
@@ -64,7 +105,10 @@ class Game {
     middle.classList.add("middle");
     content.appendChild(middle);
 
-    const middleNumber = document.createElement("div");
+    const middleNumber = document.createElement("div"); 
+    if(symbol == "❖" || symbol == "+4" ) {
+      middleNumber.classList.add('colorful');
+    }
     middleNumber.classList.add("middle-number");
     middleNumber.innerText = symbol;
     middleNumber.style.color = cardColor;
@@ -80,7 +124,18 @@ class Game {
       middleNumber.style.textShadow = "none";
     }
 
-    app.appendChild(card);
+    card.setAttribute('title', `Carta N°${index + 1}`);
+
+    // add hidden card
+    const hiddenEl = document.createElement('div');
+    hiddenEl.classList.add('hidden');
+    content.onclick = (e) => {
+      const op = e.target.style.opacity;
+      e.target.style.opacity = (op == 0) ? 1 : 0;
+    };
+    content.prepend(hiddenEl);
+    
+    app.prepend(card);
     this.inGameCards.push(symbol);
   }
 
@@ -136,10 +191,17 @@ form.onsubmit = function (e) {
   e.preventDefault();
   const formData = new FormData(this);
   console.log(formData.get("cardsQuantity"));
-  game.generateCard(formData.get("cardsQuantity"));
+  const quantity = formData.get("cardsQuantity");
+  console.log(quantity)
+  if(quantity == '') {
+    game.generateCard(1);
+  } else {
+    game.generateCard(quantity);
+  }
 };
 
 const separatorBtn = document.querySelector('button[name="addSeparator"]');
 separatorBtn.onclick = function () {
   app.appendChild(document.createElement("hr"));
 };
+
